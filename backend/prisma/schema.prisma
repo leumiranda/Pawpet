@@ -1,0 +1,77 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url = env("DATABASE_URL")
+  relationMode = "prisma"
+}
+
+model User { // usuario
+  id String @id @default(uuid())
+  name String
+  email String @unique
+  password String
+  phone Int
+  created_at DateTime? @default(now())
+  updated_at DateTime? @default(now())
+
+  @@map("users")
+  announcement Announcement[]
+}
+
+model Animal { // tipo de animal -> gato, cachorro, passaro
+  id String @id @default(uuid())
+  name String
+  created_at DateTime? @default(now())
+  updated_at DateTime? @default(now())
+
+  @@map("animals")
+  breeds Breed[]
+}
+
+model Breed { // raça do animal -> lykoi, ciames, bulldog
+  id String @id @default(uuid())
+  name String
+  created_at DateTime? @default(now())
+  updated_at DateTime? @default(now())
+
+  animal Animal @relation(fields: [animal_id], references: [id])
+  @@map("breeds")
+  animal_id String
+  pets Pet[]
+}
+
+model Pet { // filhote de gato da raça lykoi
+  id String @id @default(uuid())
+  banner String
+  dateOfBirth DateTime // 2023-04-23T10:30:00Z
+  created_at DateTime? @default(now())
+  updated_at DateTime? @default(now())
+
+  breed Breed @relation(fields: [breed_id], references: [id])
+  @@map("pets")
+  breed_id String
+  announcement Announcement[]
+}
+
+model Announcement {
+  id String @id @default(uuid())
+  price Float?
+  sale Boolean
+  status Boolean @default(false)
+  draft Boolean @default(true)
+  created_at DateTime? @default(now())
+  updated_at DateTime? @default(now())
+
+  pet Pet @relation(fields: [pet_id], references: [id])
+  user User @relation(fields: [user_id], references: [id])
+
+  @@map("announcements")
+  pet_id String
+  user_id String
+}
